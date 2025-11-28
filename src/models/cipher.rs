@@ -161,6 +161,11 @@ impl Serialize for Cipher {
         response_map.insert("favorite".to_string(), json!(self.favorite));
         response_map.insert("edit".to_string(), json!(self.edit));
         response_map.insert("viewPassword".to_string(), json!(self.view_password));
+        // new key "permissions" used by clients since v2025.6.0
+        response_map.insert("permissions". to_string(), json! ({
+            "delete": self.edit,   // if edit is true, allow delete
+            "restore": self.edit,  // if edit is true, allow restore
+        }));
         response_map.insert(
             "organizationUseTotp".to_string(),
             json!(self.organization_use_totp),
@@ -272,13 +277,19 @@ pub struct CipherRequestData {
     pub reprompt: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_known_revision_date: Option<String>,
+    /// Cipher key field used for cipher key rotation scenarios
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub key: Option<String>,
 }
 
 // Represents the full request payload for creating a cipher.
+// Supports both camelCase and PascalCase for compatibility with different clients.
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "camelCase")]
 pub struct CreateCipherRequest {
+    #[serde(alias = "Cipher")]
     pub cipher: CipherRequestData,
     #[serde(default)]
+    #[serde(alias = "CollectionIds")]
     pub collection_ids: Vec<String>,
 }

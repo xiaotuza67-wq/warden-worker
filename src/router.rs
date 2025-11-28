@@ -24,7 +24,10 @@ pub fn api_router(env: Env) -> Router {
         )
         // Main data sync route
         .route("/api/sync", get(sync::get_sync_data))
+        // For on-demand sync checks
+        .route("/api/accounts/revision-date", get(accounts::revision_date))
         // Ciphers CRUD
+        .route("/api/ciphers", post(ciphers::create_cipher_simple))
         .route("/api/ciphers/create", post(ciphers::create_cipher))
         .route("/api/ciphers/import", post(import::import_data))
         .route("/api/ciphers/{id}", put(ciphers::update_cipher))
